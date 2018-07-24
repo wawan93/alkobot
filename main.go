@@ -39,7 +39,7 @@ func main() {
 
 	bot := tgbot.NewBotFramework(api)
 
-	bot.RegisterUniversalHandler(RandomPhrase, chat)
+	bot.RegisterUniversalHandler(RandomPhrase, 0)
 
 	bot.HandleUpdates(updates)
 }
