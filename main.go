@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/joho/godotenv"
 	"github.com/wawan93/bot-framework"
@@ -44,14 +46,24 @@ func main() {
 
 func RandomPhrase(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
 	chatID := bot.GetChatID(update)
-	log.Println(rnd)
-	log.Println(chatID)
-	rnd--
-	if rnd == 0 {
-		rnd = r.Intn(90) + 10
-		msg := tgbotapi.NewMessage(chatID, GetRandomPhrase())
+	if chatID > 0 {
+		hash := md5.New()
+		hash.Write([]byte(strconv.Itoa(int(chatID))))
+		personToken := hex.EncodeToString(hash.Sum(nil))
+		log.Println(chatID)
+		log.Println(personToken)
+		msg := tgbotapi.NewMessage(chatID, personToken)
 		_, err := bot.Send(msg)
 		return err
+	} else {
+		rnd--
+		log.Println(rnd)
+		if rnd == 0 {
+			rnd = r.Intn(90) + 10
+			msg := tgbotapi.NewMessage(chatID, GetRandomPhrase())
+			_, err := bot.Send(msg)
+			return err
+		}
 	}
 	return nil
 }
@@ -61,7 +73,7 @@ func GetRandomPhrase() string {
 		"ууу, сексизм!",
 		"Вы говорите на языке ненависти!",
 		"Когда Кац так делает, вы этого не замечаете.",
-		"Гомофонная лексика!",
+		"Гомофобная лексика!",
 		"Не хочу быть с вами в одной партии.",
 	}
 
