@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -48,33 +49,39 @@ func main() {
 
 	bot := tgbot.NewBotFramework(api)
 
-	bot.RegisterUniversalHandler(RandomPhrase, 0)
+	bot.RegisterUniversalHandler(RandomPhrase(chat), 0)
 
 	bot.HandleUpdates(updates)
 }
 
-func RandomPhrase(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
-	chatID := bot.GetChatID(update)
-	if chatID > 0 {
-		hash := md5.New()
-		hash.Write([]byte(strconv.Itoa(int(chatID))))
-		personToken := hex.EncodeToString(hash.Sum(nil))
-		log.Println(chatID)
-		log.Println(personToken)
-		msg := tgbotapi.NewMessage(chatID, personToken)
-		_, err := bot.Send(msg)
-		return err
-	} else {
-		rnd--
-		log.Println(rnd)
-		if rnd == 0 {
-			rnd = r.Intn(randomRange) + randomStart
-			msg := tgbotapi.NewMessage(chatID, GetRandomPhrase())
+func RandomPhrase(targetChat int64) tgbot.CommonHandler {
+	return func(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
+		chatID := bot.GetChatID(update)
+		if chatID > 0 {
+			hash := md5.New()
+			hash.Write([]byte(strconv.Itoa(int(chatID))))
+			personToken := hex.EncodeToString(hash.Sum(nil))
+			log.Println(chatID)
+			log.Println(personToken)
+			msg := tgbotapi.NewMessage(chatID, personToken)
 			_, err := bot.Send(msg)
 			return err
+		} else if chatID == targetChat {
+			rnd--
+			log.Println(rnd)
+			if rnd == 0 {
+				rnd = r.Intn(randomRange) + randomStart
+				msg := tgbotapi.NewMessage(chatID, GetRandomPhrase())
+				_, err := bot.Send(msg)
+				return err
+			}
+		} else if update.Message != nil && update.Message.Text != "" {
+			if strings.Contains(update.Message.Text, "изыди") {
+				bot.LeaveChat(tgbotapi.ChatConfig{ChatID: chatID})
+			}
 		}
+		return nil
 	}
-	return nil
 }
 
 func GetRandomPhrase() string {
