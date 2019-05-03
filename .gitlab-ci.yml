@@ -4,6 +4,7 @@ stages:
   - push
 
 test:
+  image: golang:latest
   before_script:
     - go mod download
     - go mod vendor
