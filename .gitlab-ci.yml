@@ -25,6 +25,7 @@ compile:
       - alkobot
 
 build:
+  image: docker:stable
   stage: build
   script:
     - docker build -t registry.wawan.pro/wawan/alkobot .
