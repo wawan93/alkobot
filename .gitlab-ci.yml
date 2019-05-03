@@ -19,7 +19,7 @@ stages:
     - test
     - build
 
-format:
+test:
     stage: test
     script:
       - go test -race $(go list ./... | grep -v /vendor/)
