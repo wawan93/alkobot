@@ -1,22 +1,31 @@
-image: golang:latest
-
-before_script:
-  - go mod download
-  - go mod vendor
-
 stages:
-    - test
-    - build
+  - test
+  - build
+  - push
 
 test:
-    stage: test
-    script:
-      - go test -race $(go list ./... | grep -v /vendor/)
+  before_script:
+    - go mod download
+    - go mod vendor
+  stage: test
+  script:
+    - go test -race $(go list ./... | grep -v /vendor/)
 
 compile:
-    stage: build
-    script:
-      - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/alkobot
-    artifacts:
-      paths:
-        - alkobot
+  image: golang:latest
+  before_script:
+    - go mod download
+    - go mod vendor
+  stage: build
+  script:
+    - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/alkobot
+  artifacts:
+    paths:
+      - alkobot
+
+build:
+  image: docker:stable
+  stage: build
+  script:
+    - docker build -t registry.wawan.pro/wawan/alkobot .
+    - docker push registry.wawan.pro/wawan/alkobot
