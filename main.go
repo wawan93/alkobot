@@ -20,6 +20,8 @@ var rnd = 2
 var r *rand.Rand
 var randomRange, randomStart int
 
+var lastPinTime time.Time
+
 func init() {
 	godotenv.Load()
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -39,7 +41,10 @@ func main() {
 	log.Println(randomRange)
 	log.Println(randomStart)
 
-	api, _ := tgbotapi.NewBotAPI(token)
+	api, err := tgbotapi.NewBotAPI(token)
+	if err != nil {
+		log.Fatal(err)
+	}
 	api.Debug = true
 
 	log.Printf("logged in as %v", api.Self.UserName)
@@ -50,8 +55,12 @@ func main() {
 
 	bot := tgbot.NewBotFramework(api)
 
-	bot.RegisterUniversalHandler(RandomPhrase(chat), 0)
-	bot.RegisterCommand("/pin", PinMessage, chat)
+	if err := bot.RegisterCommand("/pin", PinMessage, 0); err != nil {
+		log.Fatalf("can't register command: %+v", err)
+	}
+	if err := bot.RegisterPlainTextHandler(RandomPhrase(chat), 0); err != nil {
+		log.Fatalf("can't register handler: %+v", err)
+	}
 	bot.Send(tgbotapi.NewMessage(chat, "Я жив. Я легитимный."))
 
 	bot.HandleUpdates(updates)
@@ -65,13 +74,23 @@ func PinMessage(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
 		return errors.New("message is not reply")
 	}
 
+	if time.Now().Before(lastPinTime.Add(time.Minute * 10)) {
+		_, err := bot.Send(tgbotapi.NewMessage(bot.GetChatID(update), "Нельзя так часто пинить"))
+		return err
+	}
+
 	msg := &tgbotapi.PinChatMessageConfig{
 		ChatID:              bot.GetChatID(update),
 		MessageID:           update.Message.ReplyToMessage.MessageID,
-		DisableNotification: true,
+		DisableNotification: false,
 	}
 
 	_, err := bot.Send(msg)
+	if err != nil {
+		log.Printf("error pinning message: %+v", err)
+	} else {
+		lastPinTime = time.Now()
+	}
 	return err
 }
 
