@@ -35,12 +35,14 @@ push:
   image: docker:stable
   stage: push
   script:
+    - docker tag registry.wawan.pro/wawan/alkobot registry.wawan.pro/wawan/alkobot:stage
     - docker push registry.wawan.pro/wawan/alkobot:stage
 
 deploy:
   image: docker:stable
   stage: deploy
   script:
+    - docker tag registry.wawan.pro/wawan/alkobot registry.wawan.pro/wawan/alkobot:latest
     - docker push registry.wawan.pro/wawan/alkobot:latest
   environment:
     name: prod
