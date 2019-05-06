@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"flag"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/joho/godotenv"
@@ -50,9 +51,28 @@ func main() {
 	bot := tgbot.NewBotFramework(api)
 
 	bot.RegisterUniversalHandler(RandomPhrase(chat), 0)
+	bot.RegisterCommand("/pin", PinMessage, chat)
 	bot.Send(tgbotapi.NewMessage(chat, "Я жив. Я легитимный."))
 
 	bot.HandleUpdates(updates)
+}
+
+func PinMessage(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
+	if update.Message == nil {
+		return errors.New("message is empty")
+	}
+	if update.Message.ReplyToMessage == nil {
+		return errors.New("message is not reply")
+	}
+
+	msg := &tgbotapi.PinChatMessageConfig{
+		ChatID:              bot.GetChatID(update),
+		MessageID:           update.Message.ReplyToMessage.MessageID,
+		DisableNotification: true,
+	}
+
+	_, err := bot.Send(msg)
+	return err
 }
 
 func RandomPhrase(targetChat int64) tgbot.CommonHandler {
