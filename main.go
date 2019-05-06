@@ -40,7 +40,7 @@ func main() {
 	log.Println(randomStart)
 
 	api, _ := tgbotapi.NewBotAPI(token)
-	//api.Debug = true
+	api.Debug = true
 
 	log.Printf("logged in as %v", api.Self.UserName)
 
