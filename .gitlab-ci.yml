@@ -49,4 +49,5 @@ deploy:
     url: http://alkobot.wawan.pro
   only:
     - master
+  when: manual
 
