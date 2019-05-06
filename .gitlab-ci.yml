@@ -44,6 +44,7 @@ deploy:
     - docker push registry.wawan.pro/wawan/alkobot:latest
   environment:
     name: prod
+    url: http://alkobot.wawan.pro
   only:
     - master
 
