@@ -74,7 +74,7 @@ func PinMessage(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
 		return errors.New("message is not reply")
 	}
 
-	if time.Now().Before(lastPinTime.Add(time.Minute * 10)) {
+	if time.Now().Before(lastPinTime.Add(time.Minute * 30)) {
 		_, err := bot.Send(tgbotapi.NewMessage(bot.GetChatID(update), "Нельзя так часто пинить"))
 		return err
 	}
