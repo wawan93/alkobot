@@ -2,6 +2,7 @@ stages:
   - test
   - build
   - push
+  - deploy
 
 test:
   image: golang:latest
@@ -29,4 +30,9 @@ build:
   stage: build
   script:
     - docker build -t registry.wawan.pro/wawan/alkobot .
+
+push:
+  image: docker:stable
+  stage: push
+  script:
     - docker push registry.wawan.pro/wawan/alkobot
