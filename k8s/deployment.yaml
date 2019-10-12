@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: alkobot
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: alkobot
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alkobot
+spec:
+  selector:
+    matchLabels:
+      app: alkobot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alkobot
+    spec:
+      containers:
+        - image: registry.wawan.pro/yabloko/alkobot:latest
+          name: alkobot
+          env:
+            - name: APP_ENV
+              value: 'production'
+            - name: WEBHOOK_ADDRESS
+              value: "api.wawan.pro"
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: alkobot
+                  key: token
+            - name: CHAT
+              valueFrom:
+                secretKeyRef:
+                  name: alkobot
+                  key: chat
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: registry.wawan.pro

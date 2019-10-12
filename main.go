@@ -6,10 +6,10 @@ import (
 	"errors"
 	"flag"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/joho/godotenv"
 	"github.com/wawan93/bot-framework"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -23,13 +23,21 @@ var randomRange, randomStart int
 var lastPinTime time.Time
 
 func init() {
-	godotenv.Load()
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 func main() {
-	token := os.Getenv("TOKEN")
-	chat, _ := strconv.ParseInt(os.Getenv("CHAT"), 10, 64)
+	token := strings.TrimSpace(os.Getenv("TOKEN"))
+	chat, err := strconv.ParseInt(strings.TrimSpace(os.Getenv("CHAT")), 10, 64)
+	if err != nil {
+		log.Println(os.Getenv("CHAT"))
+		log.Panic(err)
+	}
+
+	webhookAddress := os.Getenv("WEBHOOK_ADDRESS")
+	if webhookAddress == "" {
+		log.Panic("WEBHOOK_ADDRESS is empty")
+	}
 
 	log.Printf("token=%v", token)
 	log.Printf("chat=%v", chat)
@@ -49,11 +57,8 @@ func main() {
 
 	log.Printf("logged in as %v", api.Self.UserName)
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 60
-	updates, _ := api.GetUpdatesChan(u)
-
 	bot := tgbot.NewBotFramework(api)
+	updates := getUpdatesChannel(api, webhookAddress)
 
 	if err := bot.RegisterCommand("/pin", PinMessage, 0); err != nil {
 		log.Fatalf("can't register command: %+v", err)
@@ -64,6 +69,25 @@ func main() {
 	bot.Send(tgbotapi.NewMessage(chat, "Я жив. Я легитимный."))
 
 	bot.HandleUpdates(updates)
+}
+
+func getUpdatesChannel(api *tgbotapi.BotAPI, webhookAddress string) tgbotapi.UpdatesChannel {
+	var updates tgbotapi.UpdatesChannel
+	if os.Getenv("APP_ENV") == "development" {
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+		updates, _ = api.GetUpdatesChan(u)
+	} else if os.Getenv("APP_ENV") == "production" {
+		_, err := api.SetWebhook(tgbotapi.NewWebhook(
+			"https://" + webhookAddress + "/alkobot",
+		))
+		if err != nil {
+			log.Fatal(err)
+		}
+		updates = api.ListenForWebhook("/alkobot")
+		go http.ListenAndServe("0.0.0.0:80", nil)
+	}
+	return updates
 }
 
 func PinMessage(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
@@ -139,14 +163,12 @@ func GetRandomPhrase() string {
 		"Ныть не надо",
 		"Давайте притеснять женщин",
 		"А меня смущают Кацевские игры в демократию",
-		"Нежное черебурчанье",
 		"Утютю",
 		"Внимание всем, помните, логики нет. Её просто нет. Рефлексировать бесполезно.",
 		"Только настоящие демократы могут к хуям переругаться на пустом месте из-за невесть чего",
 		"Кажется, все уже выпили :)",
 		"Овчаренко наш вождь",
 		"Блядь объявляю собрание алкочата",
-		"Извинись!",
 		"У нас тут блять Тартуга.",
 		"Слышала про эту историю. Там не все так однозначно.",
 		"А Кац уже ушёл?",
@@ -162,19 +184,26 @@ func GetRandomPhrase() string {
 		"во губу раскатали",
 		"ваше ощущение ошибочно",
 		"явная хрень",
-		"поздравляю",
-		"алё",
 		"Клуб недовольных граждан объявляется закрытым",
 		"Виновные выявлены, к ним уже выехали с паяльником",
 		"только отвернёшься на минуту, сразу демократию разведут :)",
 		"как это вот взять и никого не наебать",
-		"Утипути",
 		"коммунизму бой",
 		"Левакам бой",
 		"халяве — бой",
 		"Футуризму бой",
 		"либертарианству бой",
 		"социализму бой",
+		"Не звони мне",
+		"Модерация - очень мягкая, исключаются только посты с нецензурщиной. Возможно высказывание любого мнения.",
+		"Лаврентьева бы прошла",
+		"ступайте в ЖПА",
+		"я вижу направленную в мой адрес микроагрессию и отказываюсь продолжать диалог",
+		"боевая формация совершила плевок в лицо шаткой конструкции наших взглядов. хипстеры, не унывая, запустили месседж-бокс, но демократические дедушки сменили токинг поинт на фигу.",
+		"Месседж бокс, собравший все токинг поинты в шаткую конструкцию",
+		"на проекты в которых участвуют сомнительные личности типа Неймарка я донатить не буду",
+		"* говорит, что собрал",
+		"Либерализмом мальчики в детстве занимаются",
 	}
 
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))

@@ -11,5 +11,4 @@ FROM scratch
 COPY --from=alpine /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/alkobot/alkobot /app/
 WORKDIR /app
-EXPOSE 8445
 ENTRYPOINT ["./alkobot"]
