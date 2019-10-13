@@ -27,8 +27,8 @@ func init() {
 }
 
 func main() {
-	token := strings.TrimSpace(os.Getenv("TOKEN"))
-	chat, err := strconv.ParseInt(strings.TrimSpace(os.Getenv("CHAT")), 10, 64)
+	token := os.Getenv("TOKEN")
+	chat, err := strconv.ParseInt(os.Getenv("CHAT"), 10, 64)
 	if err != nil {
 		log.Println(os.Getenv("CHAT"))
 		log.Panic(err)
