@@ -24,8 +24,9 @@ spec:
         app: alkobot
     spec:
       containers:
-        - image: registry.wawan.pro/yabloko/alkobot:latest
+        - image: registry.wawan.pro/yabloko/alkobot
           name: alkobot
+          command: ['./alkobot', '-r', '200', '-s', '20']
           env:
             - name: APP_ENV
               value: 'production'

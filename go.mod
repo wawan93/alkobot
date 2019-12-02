@@ -5,3 +5,5 @@ require (
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/wawan93/bot-framework v1.0.0
 )
+
+go 1.13
