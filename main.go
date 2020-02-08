@@ -5,8 +5,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"flag"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/wawan93/bot-framework"
 	"log"
 	"math/rand"
 	"net/http"
@@ -14,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbot "github.com/wawan93/bot-framework"
 )
 
 var rnd = 2
@@ -206,6 +207,7 @@ func GetRandomPhrase() string {
 		"Либерализмом мальчики в детстве занимаются",
 		"/jump_v_okno",
 		"При всем уважении всех ко всем, все всё понимают",
+		"Напоминаю про правило 34",
 	}
 
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
