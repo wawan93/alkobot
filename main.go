@@ -61,10 +61,10 @@ func main() {
 	bot := tgbot.NewBotFramework(api)
 	updates := getUpdatesChannel(api, webhookAddress)
 
-	if err := bot.RegisterCommand("/pin", PinMessage, 0); err != nil {
+	if err := bot.RegisterCommand("/pin", PinMessage, chat); err != nil {
 		log.Fatalf("can't register command: %+v", err)
 	}
-	if err := bot.RegisterPlainTextHandler(RandomPhrase(chat), 0); err != nil {
+	if err := bot.RegisterPlainTextHandler(RandomPhrase(chat), chat); err != nil {
 		log.Fatalf("can't register handler: %+v", err)
 	}
 	bot.Send(tgbotapi.NewMessage(chat, "Я жив. Я легитимный."))
