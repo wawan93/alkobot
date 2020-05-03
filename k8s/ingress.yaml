@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bots
+  annotations:  
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - api.wawan.pro
+    secretName: bots-tls
+  rules:
+  - host: api.wawan.pro
+    http:
+      paths:
+        - path: /alkobot
+          backend:
+            serviceName: alkobot
+            servicePort: 80
