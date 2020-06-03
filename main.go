@@ -112,6 +112,13 @@ func PinMessage(bot *tgbot.BotFramework, update *tgbotapi.Update) error {
 
 	_, err := bot.Send(msg)
 	if err != nil {
+		_, _ = bot.Send(&tgbotapi.MessageConfig{
+			BaseChat: tgbotapi.BaseChat{
+				ChatID:           bot.GetChatID(update),
+				ReplyToMessageID: update.Message.MessageID,
+			},
+			Text: "Не выбрали меня админом, вот хуй вам теперь, а не пины! 😡",
+		})
 		log.Printf("error pinning message: %+v", err)
 	} else {
 		lastPinTime = time.Now()

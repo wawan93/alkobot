@@ -6,10 +6,8 @@ test:
 	go test ./...
 
 docker:
-	docker rmi -f registry.wawan.pro/yabloko/alkobot
 	docker build --tag registry.wawan.pro/yabloko/alkobot .
 	docker push registry.wawan.pro/yabloko/alkobot
-	docker push registry.wawan.pro/yabloko/alkobot:latest
 
 run: test
 	go run main.go
